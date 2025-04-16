@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proto-Fusion Event</title>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+    @keyframes fall { 0% {transform: translateY(-100px); opacity: 0;} 100% {transform: translateY(0); opacity: 1;} }
+    @keyframes grow { 0% {transform: scale(1);} 50% {transform: scale(1.5);} 100% {transform: scale(1);} }
+    @keyframes bounceArrow { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(10px);} }
+    @keyframes slideBlink { 0% {opacity: 0; transform: translateX(-50px);} 50% {opacity: 1; transform: translateX(0);} 100% {opacity: 0.7;} }
+
+    body {
+      margin:0;
+      font-family:'Arial',sans-serif;
+      background:linear-gradient(135deg,#0d0d0d 0%,#1a1a1a 50%,#0d0d0d 100%);
+      color:#eee;
+      overflow-x:hidden;
+    }
+    .header, .nav, .content, .timeline, .register, .footer {
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .header span {
+      display: inline-block;
+      animation: fall 1s forwards;
+      font-size: 40px;
+      color: #0f0;
+      text-shadow: 0 0 5px #0f0;
+    }
+    .circle-img {
+      border-radius: 50%;
+      overflow: hidden;
+      width: 100px;
+      height: 100px;
+      transition: transform 0.5s, box-shadow 0.5s;
+      cursor: pointer;
+      border: 3px solid #0f0;
+    }
+    .circle-img:hover {
+      animation: grow 1s;
+      box-shadow: 0 0 20px #0f0;
+    }
+    .departments {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    .departments div {
+      padding: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      border: 2px solid #0f0;
+      border-radius: 10px;
+      font-size: 20px;
+      color: #0f0;
+    }
+    .departments div:hover {
+      background-color: #1a1a1a;
+      transform: scale(1.1);
+      box-shadow: 0 0 10px #0f0;
+    }
+    .theme-section {
+      display: none;
+      text-align: left;
+      padding: 20px;
+      border: 2px solid #0f0;
+      margin: 20px auto;
+      max-width: 700px;
+      border-radius: 15px;
+      background: #111;
+      box-shadow: 0 0 20px #0f0;
+    }
+    .theme-section h2 {
+      color: #0f0;
+    }
+    .theme-section li {
+      margin: 10px 0;
+    }
+    .arrow {
+      font-size: 30px;
+      animation: bounceArrow 1s infinite;
+      color: #0f0;
+      margin-top: 20px;
+    }
+    .clock {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      margin: 20px auto;
+      padding: 12px;
+      background: #000;
+      display: inline-block;
+      border: 3px solid #0f0;
+      border-radius: 10px;
+      color: #0f0;
+      box-shadow: 0 0 20px #0f0;
+    }
+    .postbox {
+      background: #111;
+      border: 2px solid #0f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 500px;
+      text-align: left;
+      color: #eee;
+      box-shadow: 0 0 15px #0f0;
+    }
+    .postbox h3 {
+      margin-top: 0;
+      color: #0f0;
+    }
+    .nav a {
+      color: #0f0;
+      padding: 10px 20px;
+      text-decoration: none;
+      border: 1px solid #0f0;
+      margin: 5px;
+      border-radius: 5px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .nav a:hover {
+      background-color: #0f0;
+      color: #000;
+      transform: scale(1.05);
+    }
+    .register a {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #0f0;
+      color: #000;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .register a:hover {
+      background: #bada55;
+      transform: scale(1.05);
+    }
+    .footer {
+      background: #0d0d0d;
+      padding: 30px;
+      margin-top: 40px;
+      border-top: 3px solid #0f0;
+    }
+    .footer h2 {
+      color: #0f0;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .quote-box {
+      background: #111;
+      border: 2px solid #0f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 0 20px #0f0;
+    }
+    .quote-box p {
+      color: #0f0;
+      font-size: 18px;
+      margin: 0;
+    }
+    .theme-list {
+      margin:20px 0 0 0;
+      padding:0;
+      list-style:none;
+    }
+    .theme-list li {
+      background:#111;
+      color:#0f0;
+      margin:10px 0;
+      padding:12px 20px;
+      border:1px solid #0f0;
+      border-radius:8px;
+      box-shadow:0 0 10px #0f0;
+      opacity:0;
+      animation: slideBlink 1.2s forwards;
+    }
+    .left-box {
+      position: fixed;
+      top: 20%;
+      left: 0;
+      background-color: #111;
+      color: #0f0;
+      width: 250px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      border-radius: 12px;
+      z-index: 10;
+      transform: translateX(-300px);
+      transition: transform 0.5s ease-in-out;
+    }
+    .left-box.show {
+      transform: translateX(0);
+    }
+    .left-box h3 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+    .left-box p {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    .flip-box {
+      width: 100%;
+      height: 100px;
+      perspective: 1000px;
+      margin-top: 20px;
+    }
+    .flip-box-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+    .flip-box:hover .flip-box-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-box-front, .flip-box-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: #0f0;
+      border-radius: 10px;
+    }
+    .flip-box-front {
+      background: linear-gradient(135deg, #0f0 10%, #000 90%);
+    }
+    .flip-box-back {
+      background: #000;
+      transform: rotateY(180deg);
+    }
+
+    .nav a {
+      color: #0f0;
+      padding: 10px 20px;
+      text-decoration: none;
+      border: 1px solid #0f0;
+      margin: 5px;
+      border-radius: 5px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .nav a:hover {
+      background-color: #0f0;
+      color: #000;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<div class="nav">
+  <a href="#home">Home</a>
+  <a href="#about">About</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<div class="header">
+  <h1>
+<span style="animation-delay:0s;">A</span>
+<span style="animation-delay:0.1s;">N</span>
+<span style="animation-delay:0.2s;">N</span>
+<span style="animation-delay:0.3s;">A</span>
+&nbsp;
+<span style="animation-delay:0.4s;">U</span>
+<span style="animation-delay:0.5s;">N</span>
+<span style="animation-delay:0.6s;">I</span>
+<span style="animation-delay:0.7s;">V</span>
+<span style="animation-delay:0.8s;">E</span>
+<span style="animation-delay:0.9s;">R</span>
+<span style="animation-delay:1s;">S</span>
+<span style="animation-delay:1.1s;">I</span>
+<span style="animation-delay:1.2s;">T</span>
+<span style="animation-delay:1.3s;">Y</span>
+  </h1>
+  <span style="animation-delay:0s;">R</span>
+<span style="animation-delay:0.1s;">E</span>
+<span style="animation-delay:0.2s;">G</span>
+<span style="animation-delay:0.3s;">I</span>
+<span style="animation-delay:0.4s;">O</span>
+<span style="animation-delay:0.5s;">N</span>
+&nbsp;
+<span style="animation-delay:0.6s;">C</span>
+<span style="animation-delay:0.7s;">A</span>
+<span style="animation-delay:0.8s;">M</span>
+<span style="animation-delay:0.9s;">P</span>
+<span style="animation-delay:1s;">U</span>
+<span style="animation-delay:1.1s;">S</span>
+&nbsp;
+<span style="animation-delay:1.2s;">M</span>
+<span style="animation-delay:1.3s;">A</span>
+<span style="animation-delay:1.4s;">D</span>
+<span style="animation-delay:1.5s;">U</span>
+<span style="animation-delay:1.6s;">R</span>
+<span style="animation-delay:1.7s;">A</span>
+&nbsp;
+<span style="animation-delay:1.8s;">D</span>
+<span style="animation-delay:1.9s;">E</span>
+<span style="animation-delay:2s;">P</span>
+<span style="animation-delay:2.1s;">A</span>
+<span style="animation-delay:2.2s;">R</span>
+<span style="animation-delay:2.3s;">T</span>
+<span style="animation-delay:2.4s;">M</span>
+<span style="animation-delay:2.5s;">E</span>
+<span style="animation-delay:2.6s;">N</span>
+<span style="animation-delay:2.7s;">T</span>
+&nbsp;
+<span style="animation-delay:2.8s;">O</span>
+<span style="animation-delay:2.9s;">F</span>
+&nbsp;
+<span style="animation-delay:3s;">C</span>
+<span style="animation-delay:3.1s;">S</span>
+<span style="animation-delay:3.2s;">E</span>
+
+  <div style="position:absolute; top:20px; right:20px;">
+    <img src="C:\Users\somea\Desktop\software engineering\clg logo.png" class="circle-img">
+  </div>
+</div>
+
+<div class="content" id="home">
+  <h1>Welcome to Proto-Fusion</h1>
+  <p>An inter-departmental technical and cultural fest.</p>
+  <div class="arrow">⬇️</div>
+</div>
+
+
+<div class="departments">
+    <div onclick="showTheme('cse')">Theme</div>
+  <div onclick="showTheme('cse')">💻 CSE</div>
+  <div onclick="showTheme('cse')">⚙️ MECH</div>
+  <div onclick="showTheme('cse')">🏗️ CIVIL</div>
+  <div onclick="showTheme('cse')">📡 ECE</div>
+  <div onclick="showTheme('cse')">💡 EEE</div>
+  <div onclick="showTheme('cse')">📊 MBA</div>
+  <div onclick="showTheme('cse')">🎭 Inter Dept</div>
+</div>
+<div id="details-box" class="left-box">
+    <h3>Event Information</h3>
+    <p>Details about the event will appear here.</p>
+    <div class="flip-box">
+      <div class="flip-box-inner">
+        <div class="flip-box-front">
+          <h4>Event Overview</h4>
+        </div>
+        <div class="flip-box-back">
+          <p>Details about the event overview.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show and hide the left-side box
+    setTimeout(function() {
+      document.getElementById('details-box').classList.add('show');
+    }, 1000); // Show the box after 1 second
+
+    // Event flipping effect
+    const flipBoxes = document.querySelectorAll('.flip-box');
+    flipBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        box.classList.toggle('flipped');
+      });
+    });
+  </script>
+<div id="theme-cse" class="theme-section">
+  <h2>💻 common  Themes</h2>
+  <ul class="theme-list">
+    <li>Sustainable Energy & Power Saving</li>
+    <li>Health, Hygiene & Safety</li>
+    <li>Education & Community Support</li>
+    <li>Water Conservation & Management</li>
+    <li>Clean Environment & Waste Management</li>
+  </ul>
+</div>
+<div id="theme-cse" class="theme-section">
+    <h2>💻 MECH Themes</h2>
+    <ul class="theme-list">
+      <li>Sustainable Energy & Power Saving</li>
+      <li>Health, Hygiene & Safety</li>
+      <li>Education & Community Support</li>
+      <li>Water Conservation & Management</li>
+      <li>Clean Environment & Waste Management</li>
+    </ul>
+  </div>
+  <div id="theme-cse" class="theme-section">
+    <h2>💻 CIVIL Themes</h2>
+    <ul class="theme-list">
+      <li>Sustainable Energy & Power Saving</li>
+      <li>Health, Hygiene & Safety</li>
+      <li>Education & Community Support</li>
+      <li>Water Conservation & Management</li>
+      <li>Clean Environment & Waste Management</li>
+    </ul>
+  </div>
+  <div id="theme-cse" class="theme-section">
+    <h2>💻 EEE Themes</h2>
+    <ul class="theme-list">
+      <li>Sustainable Energy & Power Saving</li>
+      <li>Health, Hygiene & Safety</li>
+      <li>Education & Community Support</li>
+      <li>Water Conservation & Management</li>
+      <li>Clean Environment & Waste Management</li>
+    </ul>
+  </div>
+  <div id="theme-cse" class="theme-section">
+    <h2>💻 INTERDEPARTMNET Themes</h2>
+    <ul class="theme-list">
+      <li>Sustainable Energy & Power Saving</li>
+      <li>Health, Hygiene & Safety</li>
+      <li>Education & Community Support</li>
+      <li>Water Conservation & Management</li>
+      <li>Clean Environment & Waste Management</li>
+    </ul>
+  </div>
+  <div id="theme-cse" class="theme-section">
+    <h2>💻 ECE Themes</h2>
+    <ul class="theme-list">
+      <li>Sustainable Energy & Power Saving</li>
+      <li>Health, Hygiene & Safety</li>
+      <li>Education & Community Support</li>
+      <li>Water Conservation & Management</li>
+      <li>Clean Environment & Waste Management</li>
+    </ul>
+  </div>
+  <script>
+  function showTheme(dept) {
+    var sections = document.getElementsByClassName('theme-section');
+    for (var i = 0; i < sections.length; i++) {
+      sections[i].style.display = 'none';
+    }
+    document.getElementById('theme-' + dept).style.display = 'block';
+  }
+  function showTheme(dept) {
+  var sections = document.getElementsByClassName('theme-section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].style.display = 'none';
+  }
+  document.getElementById('theme-' + dept).style.display = 'block';
+}
+  </script>
+  <div class="timeline">
+    <h2>Live Event Clock</h2>
+    <div class="clock" id="liveClock"></div>
+  
+    <div class="card-container">
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="card-front">
+            <h3>📌 GForm Submission</h3>
+          </div>
+          <div class="card-back">
+            <p>20-04-2025 (Sunday)</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="card-front">
+            <h3>💻 PPT Presentation</h3>
+          </div>
+          <div class="card-back">
+            <p>02-05-2025 (Friday)</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="card-front">
+            <h3>🔍 Prototype Review</h3>
+          </div>
+          <div class="card-back">
+            <p>09-05-2025 (Friday)</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="event-card">
+        <div class="card-inner">
+          <div class="card-front">
+            <h3>🎨 Final Exhibition</h3>
+          </div>
+          <div class="card-back">
+            <p>15-05-2025 (Thursday)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+  .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  
+  .event-card {
+    width: 200px;
+    height: 150px;
+    perspective: 1000px;
+  }
+  
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.9s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  
+  .event-card:hover .card-inner {
+    transform: rotateY(180deg);
+  }
+  
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backface-visibility: hidden;
+    background: #111;
+    color: #0f0;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .card-front {
+    background: linear-gradient(135deg, #0f0 10%, #000 90%);
+  }
+  
+  .card-back {
+    background: #000;
+    transform: rotateY(180deg);
+  }
+  </style>
+  
+  <script>
+  function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    document.getElementById('liveClock').textContent = timeString;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+  
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = [];
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2,
+      d: Math.random() * 2
+    });
+  }
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f0';
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+      ctx.fill();
+      p.y += p.d;
+      if (p.y > canvas.height) p.y = 0;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+  
+  const quotes = [
+    "Dream big, work hard, stay humble.",
+    "Innovation distinguishes between a leader and a follower.",
+    "Your only limit is your imagination.",
+    "Think different, act bold.",
+    "The future belongs to those who create it."
+  ];
+  document.getElementById('quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+  
+
+  </script>
+  
+
+<!-- Duplicate this for mech, civil, ece, eee, mba, inter -->
+
+<div class="timeline">
+  <div id="liveClock" class="clock"></div>
+</div>
+<script>
+  function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    document.getElementById('liveClock').textContent = timeString;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = [];
+  for (let i = 0; i < 150; i++) {
+    particles.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2, d: Math.random() * 2});
+  }
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f0';
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+      ctx.fill();
+      p.y += p.d;
+      if (p.y > canvas.height) p.y = 0;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+  
+  
+</script>
+<div class="footer" id="about">
+    <h2>About Proto-Fusion</h2>
+    <p><strong>Interdepartmental participations is appreciated</strong><br>
+       <strong>Maximum three members in a team ,if you want to work with yourself is also acceptable</strong><br>
+       <strong>Single participation also acceptable.</strong><br>
+        </p>
+  </div>
+  <div class="footer" id="contact">
+    <h2>Contact Us</h2>
+    <p>Email: <a href="mailto:someaswaran@gmail.com">someaswaran@gmail.com</a> | Phone: +91 7010031755</p>
+
+  </div>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proto-Fusion Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .register-icon {
+            font-size: 50px;
+            margin: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .register-icon:hover {
+            transform: scale(1.2);
+            color: #4CAF50;
+        }
+        .emoji {
+            font-size: 60px;
+            display: inline-block;
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .emoji:hover {
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Proto-Fusion Registration</h1>
+    <p>Click the icons below to register for the event:</p>
+    
+    <!-- Register Icons with Mouse Over and Emojis -->
+    <div class="register-icons">
+        <span class="emoji" onclick="window.location.href='https://forms.gle/Akqcb25JfH6T43U3A'">🎉</span>
+        <span class="emoji" onclick="window.location.href='https://forms.gle/Akqcb25JfH6T43U3A'">📝</span>
+        <span class="emoji" onclick="window.location.href='https://forms.gle/Akqcb25JfH6T43U3A'">📲</span>
+    </div>
+
+</body>
+</html>
+
+
+</body>
+</html>
